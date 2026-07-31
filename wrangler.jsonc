@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "landing-api-franciscosolis",
+  "name": "landing",
   "main": "src/index.ts",
   "preview_urls": true,
   "workers_dev": true,
