@@ -1,39 +1,68 @@
 import { Hono } from 'hono'
 import { HTTPException } from 'hono/http-exception'
 import type { Env } from '@/env'
-import { cors } from 'hono/cors';
+import { describeRoute, openAPIRouteHandler, resolver } from 'hono-openapi'
+import * as v from 'valibot'
 
 /* Routes */
 import stats from '@/stats'
 
 const app = new Hono<{Bindings: Env}>()
 
+app.use('*', async (c, next) => {
+  await next()
+  if (c.res.headers.get('Content-Type') === 'application/json') {
+    c.res.headers.set('Content-Type', 'application/json; charset=UTF-8')
+  }
+})
+
 app.onError((err, c) => {
   const status = err instanceof HTTPException ? err.status : 500
   return c.json({ code: status, error: err.message || 'Internal Server Error' }, status)
 })
 
-app.use('*', cors({
-  origin: (origin, ctx) => {
-    if (origin?.endsWith('localhost:5173') || origin?.endsWith('franciscosolis.workers.dev') || origin?.endsWith('franciscosolis.cl')) {
-      return origin
-    }
-    return 'https://franciscosolis.cl'  // Default allowed origin
-  },
-  allowMethods: ['GET'],
-  allowHeaders: ['Content-Type', 'Authorization'],  // Only include necessary headers
-  exposeHeaders: ['Content-Type'],
-  maxAge: 600,
-  credentials: false,  // Set to true only if needed
-}))
+const rootResponseSchema = v.object({
+  code: v.literal(200),
+  data: v.object({
+    message: v.string(),
+  }),
+})
 
-app.get('/', (c) => c.json({
-  code: 200,
-  data: {
-    message: '¡Hello, API!'
-  }
-}))
+app.get(
+  '/',
+  describeRoute({
+    description: 'Estado del sitio landing',
+    tags: ['General'],
+    responses: {
+      200: {
+        description: 'El sitio landing está operativo',
+        content: {
+          'application/json': { schema: resolver(rootResponseSchema) },
+        },
+      },
+    },
+  }),
+  (c) => c.json({
+    code: 200,
+    data: {
+      message: '¡Hello, Landing!'
+    }
+  })
+)
 
 app.route('/stats', stats)
+
+app.get(
+  '/openapi.json',
+  openAPIRouteHandler(app, {
+    documentation: {
+      info: {
+        title: 'FranciscoSolis - Landing API',
+        version: '1.0.0',
+        description: 'Internal API detrás del sitio landing de franciscosolis.cl: estadísticas de GitHub y metadata del sitio.',
+      },
+    },
+  })
+)
 
 export default app

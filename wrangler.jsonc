@@ -11,13 +11,6 @@
   "compatibility_flags": [
     "nodejs_compat"
   ],
-  "routes": [
-    {
-      "pattern": "api.franciscosolis.cl",
-      "zone_name": "franciscosolis.cl",
-      "custom_domain": true
-    }
-  ],
   "observability": {
     "enabled": true,
     "head_sampling_rate": 0.25,

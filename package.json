@@ -1,17 +1,21 @@
 {
-  "name": "landing-api-franciscosolis",
+  "name": "landing",
   "type": "module",
   "license": "GPL-3.0-only",
   "scripts": {
-    "dev": "wrangler dev",
+    "dev": "wrangler dev --ip 0.0.0.0 --port 8788 --inspector-port 9230",
     "deploy": "wrangler deploy --minify",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings"
   },
   "dependencies": {
-    "axios": "^1.19.0",
-    "hono": "^4.12.33"
+    "@hono/standard-validator": "catalog:",
+    "@valibot/to-json-schema": "catalog:",
+    "axios": "catalog:",
+    "hono": "catalog:",
+    "hono-openapi": "catalog:",
+    "valibot": "catalog:"
   },
   "devDependencies": {
-    "wrangler": "^4.110.0"
+    "wrangler": "catalog:"
   }
 }
